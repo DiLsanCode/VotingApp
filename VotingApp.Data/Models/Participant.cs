@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VotingApp.Business.Models
+namespace VotingApp.Data.Models
 {
-    public class User
+    public class Participant
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
-        public string SecondName { get; set; }
+        public string MIddleName { get; set; }
         public string LastName { get; set; }
-        public string EGN { get; set; }
-        public string IndividualAuthenticationCode { get; set; }
-        public bool hasVoted { get; set; }
+        public int PartyId { get; set; }
+        public virtual Party Party { get; set; }
 
     }
 }

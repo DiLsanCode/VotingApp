@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VotingApp.Business.Models
+namespace VotingApp.Business.Constants
 {
-    public class Role
+    public enum EnumRole
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        User = 0,
+        Admin = 1,
     }
 }
