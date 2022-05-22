@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using VotingApp.Web.Models;
+using VotingApp.Models;
 
-namespace VotingApp.Web.Controllers
+namespace VotingApp.Controllers
 {
     public class HomeController : Controller
     {
