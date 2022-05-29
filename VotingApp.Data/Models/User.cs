@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable disable
+
 namespace VotingApp.Data.Models
 {
     public class User : IdentityUser<int>
@@ -14,7 +16,5 @@ namespace VotingApp.Data.Models
         public string MiddleName { get; set; }
         public string LastName { get; set; }
 
-        [DataType(DataType.Password)]
-        public string EGN { get; set; }
     }
 }

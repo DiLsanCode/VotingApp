@@ -1,0 +1,75 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using VotingApp.Business.Constants
+@using VotingApp.Data.Models
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model IEnumerable<VotingApp.Data.Models.Participant>
+@{
+    ViewBag.Title = "Voting";
+}
+<h1>All Participants</h1>
+@if (Model.Any())
+{
+    if (User.IsInRole(Roles.Admin))
+    {
+        foreach (var participant in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    @participant.Party
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"> Participant Name: @participant.FirstName + @participant.LastName</h5>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-danger">Edit</a>
+                    <a href="#" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        foreach (var participant in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    @participant.Party
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"> Participant Name: @participant.FirstName + @participant.LastName</h5>
+                </div>
+            </div>
+        }
+    }
+
+}
+else
+{
+    if (User.IsInRole(Roles.Admin))
+    {
+        <div class="card">
+            <div class="card-header">
+                No participant created yet
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    Use the button below to create new participant
+                </h5>
+                <a class="btn btn-primary" style="width:auto"
+           asp-controller="Admin" asp-action="AddNewParticipant">
+                    Add new Participant
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                No Participants Yet
+            </div>
+        </div>
+    }
+
+}
