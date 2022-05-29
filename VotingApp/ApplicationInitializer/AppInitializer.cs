@@ -56,14 +56,13 @@ namespace VotingApp.ApplicationInitializer
 
             var adminUser = new User
             {
-                UserName = "Admin",
-                EGN = "0000000000",
+                UserName = "Admin12345",
                 FirstName = "Admin",
                 MiddleName = "Admin",
                 LastName = "Admin",
             };
 
-            await _userManager.CreateAsync(adminUser, "Admin123!");
+            await _userManager.CreateAsync(adminUser, "Admin123");
             await _userManager.AddToRoleAsync(adminUser, Roles.Admin);
 
         }

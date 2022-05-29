@@ -12,7 +12,7 @@ using VotingApp.Data.Data;
 namespace VotingApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220522131932_InitialMigration")]
+    [Migration("20220529155331_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -219,10 +219,6 @@ namespace VotingApp.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EGN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -231,11 +227,9 @@ namespace VotingApp.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -245,7 +239,6 @@ namespace VotingApp.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("MiddleName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
@@ -342,12 +335,17 @@ namespace VotingApp.Data.Migrations
             modelBuilder.Entity("VotingApp.Data.Models.Participant", b =>
                 {
                     b.HasOne("VotingApp.Data.Models.Party", "Party")
-                        .WithMany()
+                        .WithMany("Participant")
                         .HasForeignKey("PartyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Party");
+                });
+
+            modelBuilder.Entity("VotingApp.Data.Models.Party", b =>
+                {
+                    b.Navigation("Participant");
                 });
 #pragma warning restore 612, 618
         }

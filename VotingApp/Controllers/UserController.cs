@@ -1,38 +1,31 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using VotingApp.Business.Interfaces;
-using VotingApp.Business.Models;
+using Microsoft.EntityFrameworkCore;
+using VotingApp.Data.Data;
+using VotingApp.Data.Models;
 
 namespace VotingApp.Controllers
 {
     public class UserController : Controller
     {
-        //private readonly SignInManager<RegisterModel> _signInManager;
-        private readonly IUserService _userService;
+        private readonly RoleManager<Role> _roleManager;
+        private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        //SignInManager<RegisterModel> signInManager,
-        public UserController( IUserService userService)
+        public UserController(RoleManager<Role> roleManager, 
+                                UserManager<User> userManager, 
+                                ApplicationDbContext dbContext)
         {
-            //_signInManager = signInManager;
-            _userService = userService;
+            _roleManager = roleManager;
+            _userManager = userManager;
+            _context = dbContext;
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> ListParticipants()
         {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterModel user)
-        {
-            if (ModelState.IsValid)
-            {
-                await _userService.CreateNewUser(user);
-                //await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
-            }
-            return View();
+            var participants = await _context.Participants.ToListAsync();
+            return View(participants);
         }
     }
 }
