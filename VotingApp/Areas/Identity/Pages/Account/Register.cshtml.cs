@@ -2,27 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using VotingApp.Business.Constants;
 using VotingApp.Data.Data;
 using VotingApp.Data.Models;
+using VotingApp.Business.Validation;
+using Microsoft.EntityFrameworkCore;
 
 namespace VotingApp.Areas.Identity.Pages.Account
 {
@@ -71,11 +60,13 @@ namespace VotingApp.Areas.Identity.Pages.Account
             [StringLength(10, ErrorMessage = "The {0} must be {1} characters long.", MinimumLength = 10)]
             [DataType(DataType.Password)]
             [Display(Name = "ЕГН")]
+            [RegularExpression("^[0-9]*$", ErrorMessage = "ЕГН-то трябва да се състои само от цифри!")]
             public string EGN { get; set; }
 
             [Required]
-            [StringLength(12, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 9)]
+            [StringLength(13, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 10)]
             [Display(Name = "Телефонен номер")]
+            [RegularExpression("^[0-9+]*$", ErrorMessage = "Телефонният номер трябва да се състои само от цифри и започващ с 0 или +!")]
             public string PhoneNumber { get; set; }
 
         }
@@ -95,14 +86,19 @@ namespace VotingApp.Areas.Identity.Pages.Account
                 var user = CreateUser();
                 var _password = CreateAuthenticationCode();
 
-                await _userStore.SetUserNameAsync(user, Input.EGN, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, _password);
+                if (await IsPhoneNumberUsed(user.PhoneNumber))
+                {
+                    ModelState.AddModelError(string.Empty, "Телефонният номер вече съществува в системата!");
+                }
+                else
+                {
+                    var result = await _userManager.CreateAsync(user, _password);
+                }
+
                 await _userManager.AddToRoleAsync(user, Roles.User);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Успешна регистрация!");
-
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
@@ -137,16 +133,17 @@ namespace VotingApp.Areas.Identity.Pages.Account
             }
         }
 
-        private async Task<string> PhoneNumberAsync(string str)
+        private async Task<bool> IsPhoneNumberUsed(string phone)
         {
             var phoneToLookFor = await _context.Users
-               .FirstOrDefaultAsync(x => x.PhoneNumber == str);
+                .FirstOrDefaultAsync(x => x.PhoneNumber == phone);
 
-            if(phoneToLookFor != null)
+            if (phoneToLookFor == null)
             {
-                
+                return false;
             }
-            return str;
+            return true;
+
         }
 
         private string UppercaseFirst(string str)
