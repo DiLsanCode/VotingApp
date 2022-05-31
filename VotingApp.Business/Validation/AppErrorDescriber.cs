@@ -24,16 +24,5 @@ namespace VotingApp.Business.Validation
             error.Description = "ЕГН-то вече съществува в системата!";
             return error;
         }
-
-        public IdentityError DuplicatePhoneNumbere(string phoneNumber)
-        {
-            var error = new IdentityError
-            {
-                Code = nameof(DuplicatePhoneNumbere),
-                Description = "Телефонният номер вече съществува в системата!"
-            };
-
-            return error;
-        }
     }
 }

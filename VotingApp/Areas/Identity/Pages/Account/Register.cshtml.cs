@@ -93,19 +93,19 @@ namespace VotingApp.Areas.Identity.Pages.Account
                 else
                 {
                     var result = await _userManager.CreateAsync(user, _password);
-                }
+                    await _userManager.AddToRoleAsync(user, Roles.User);
 
-                await _userManager.AddToRoleAsync(user, Roles.User);
-
-                if (result.Succeeded)
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    if (result.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                
             }
 
             // If we got this far, something failed, redisplay form

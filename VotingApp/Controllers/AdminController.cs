@@ -26,12 +26,12 @@ namespace VotingApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewParticipant(RegisterNewParticipant newParticipant, string returnUrl = null)
+        public async Task<IActionResult> AddNewParticipant(RegisterNewParticipant newParticipant)
         {
-            returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
             {
                 await _adminService.AddParticipant(newParticipant);
+                return RedirectToAction("Index","Home");
             }
             return View();
         }
