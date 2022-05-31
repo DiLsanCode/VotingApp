@@ -19,7 +19,7 @@
                     @participant.Party
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title"> Participant Name: @participant.FirstName + @participant.LastName</h5>
+                    <h5 class="card-title"> Participant Name: @participant.FirstName @participant.LastName</h5>
                 </div>
                 <div class="card-footer">
                     <a href="#" class="btn btn-danger">Edit</a>
@@ -27,6 +27,17 @@
                 </div>
             </div>
         }
+        <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Use the button below to create new participant
+                    </h5>
+                    <a class="btn btn-primary" style="width:auto"
+           asp-controller="Admin" asp-action="AddNewParticipant">
+                        Add new Participant
+                    </a>
+                </div>
+            </div>
     }
     else
     {
@@ -37,7 +48,7 @@
                     @participant.Party
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title"> Participant Name: @participant.FirstName + @participant.LastName</h5>
+                    <h5 class="card-title"> Participant Name: @participant.FirstName @participant.LastName</h5>
                 </div>
             </div>
         }

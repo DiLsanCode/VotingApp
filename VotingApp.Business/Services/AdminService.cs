@@ -24,6 +24,7 @@ namespace VotingApp.Business.Services
                 LastName = UppercaseFirst(newParticipant.LastName),
                 PartyId = newParticipant.PartyId,
             });
+            await _dbContext.SaveChangesAsync();
             return result.Entity;
         }
 
