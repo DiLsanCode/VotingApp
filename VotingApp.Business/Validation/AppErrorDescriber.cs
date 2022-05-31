@@ -25,23 +25,15 @@ namespace VotingApp.Business.Validation
             return error;
         }
 
-        public async Task<IdentityError> DuplicatePhoneNumbereAsync(string phoneNumber)
+        public IdentityError DuplicatePhoneNumbere(string phoneNumber)
         {
-            var phoneToLookFor = await _context.Users
-                .FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber);
-
             var error = new IdentityError
             {
-                Code = nameof(DuplicatePhoneNumbereAsync),
+                Code = nameof(DuplicatePhoneNumbere),
                 Description = "Телефонният номер вече съществува в системата!"
             };
 
-            if (phoneToLookFor != null)
-            {
-                return error;
-            }
-
-            return null;
+            return error;
         }
     }
 }
