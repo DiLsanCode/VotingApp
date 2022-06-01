@@ -19,20 +19,31 @@ namespace VotingApp.Controllers
             _adminService = adminService;
         }
 
-        [HttpGet]
-        public IActionResult AddNewParticipant()
-        {
-            return View();
-        }
-
         [HttpPost]
         public async Task<IActionResult> AddNewParticipant(RegisterNewParticipant newParticipant)
         {
             if (ModelState.IsValid)
             {
                 await _adminService.AddParticipant(newParticipant);
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("ListParticipants","User");
             }
+            return View();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteParticipant(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                await _adminService.DeleteParticipant(id);
+                return RedirectToAction("ListParticipants", "User");
+            }
+            return View();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditParticipant()
+        {
             return View();
         }
     }

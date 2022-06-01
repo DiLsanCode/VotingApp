@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VotingApp.Business.Interfaces;
 using VotingApp.Business.Models;
 using VotingApp.Data.Data;
@@ -28,9 +29,13 @@ namespace VotingApp.Business.Services
             return result.Entity;
         }
 
-        public Task<IActionResult> DeleteParticipant()
+        public async Task DeleteParticipant(int id)
         {
-            throw new NotImplementedException();
+            var participantToRemove = await _dbContext.Participants
+               .FirstOrDefaultAsync(x => x.Id == id);
+
+            _dbContext.Participants.Remove(participantToRemove);
+            await _dbContext.SaveChangesAsync();
         }
 
         public Task<IActionResult> EditParticipant()

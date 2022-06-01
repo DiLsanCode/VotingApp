@@ -1,0 +1,21 @@
+﻿@using VotingApp.Business.Models
+@model ViewParticipantInParty
+@{
+    ViewBag.Title = "Confirm Vote";
+}
+<div class="text-center">
+    <h4>Вие гласувахте за:</h4>
+    <h2 class="text-primary">@Model.FirstName @Model.LastName</h2>
+    <h4>От партия:</h4>
+    <h2 class="text-primary">@Model.Party</h2>
+    <div>
+        <label class="text-black" for="checkme">
+            <input type="checkbox" class="big-checkbox" id="checkme" />
+            Потвърждавам, че това е моят краен вот!
+        </label>
+    </div>
+    <button class="btn btn-primary" id="finalVoteBtn" type="button" disabled
+            onclick="location.href='@Url.Action("Vote", "User", new { id = @Model.Id })'">
+        Гласувай
+    </button>
+</div>
