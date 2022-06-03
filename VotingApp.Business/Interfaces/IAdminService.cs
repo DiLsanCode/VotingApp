@@ -12,6 +12,7 @@ namespace VotingApp.Business.Interfaces
     public interface IAdminService
     {
         Task<Participant> AddParticipant(RegisterNewParticipant newParticipant);
+        Task<Party> AddParty(RegisterNewParty newParty);
         Task DeleteParticipant(int id);
         Task<IActionResult> EditParticipant();
     }

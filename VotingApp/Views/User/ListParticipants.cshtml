@@ -9,6 +9,23 @@
     ViewBag.Title = "Гласуване";
 }
 <h1>Кандидати</h1>
+
+@if (User.IsInRole(Roles.Admin))
+{
+    <div class="card">
+        <div class="card-body">
+            <a class="btn btn-primary" style="width:auto"
+           asp-controller="Admin" asp-action="AddNewParticipant">
+                Добави кандидат
+            </a>
+            <a class="btn btn-primary" style="width:auto"
+           asp-controller="Admin" asp-action="AddNewParty">
+                Добави партия
+            </a>
+        </div>
+    </div>
+}
+
 @if (Model.Any())
 {
     if (User.IsInRole(Roles.Admin))
@@ -20,92 +37,59 @@
                     Партия: @participant.Party
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title"> @participant.FirstName @participant.LastName</h5>
+                    <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
                 </div>
                 <div class="card-footer">
-                    <form method="post" asp-action="DeleteParticipant" asp-route-id="@participant.Id">
-                        <a class="btn btn-warning" style="width:auto"
-               asp-controller="Admin" asp-action="EditParticipant">
-                            Редактирай
-                        </a>
-                        <button class="btn btn-danger" type="submit"> Изтрий </button>
-                    </form>
+                    <a class="btn btn-warning" style="width:auto"
+           asp-controller="Admin" asp-action="EditParticipant">
+                        Редактирай
+                    </a>
+                    <a class="btn btn-danger" style="width:auto"
+           asp-controller="Admin" asp-action="ConfirmDelete" asp-route-id="@participant.Id">
+                        Изтрий
+                    </a>
                 </div>
             </div>
         }
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">
-                    Добавяне на нов кандидат
-                </h5>
-                <a class="btn btn-primary" style="width:auto"
-           asp-controller="Admin" asp-action="AddNewParticipant">
-                    Добави
-                </a>
+    }
+    else if (User.IsInRole(Roles.User))
+    {
+        foreach (var participant in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    Партия: @participant.Party
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
+                    <a class="btn btn-primary float-end"
+           asp-controller="User" asp-action="ConfirmVote" asp-route-id="@participant.Id">
+                        Vote
+                    </a>
+                </div>
             </div>
-        </div>
+        }
     }
     else
     {
-        if (User.IsInRole(Roles.User))
+        foreach (var participant in Model)
         {
-            foreach (var participant in Model)
-            {
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Партия: @participant.Party
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
-                        <a class="btn btn-primary float-end" asp-controller="User" asp-action="ConfirmVote" asp-route-id="@participant.Id">Vote</a>
-                    </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    Партия: @participant.Party
                 </div>
-            }
-        }
-        else
-        {
-            foreach (var participant in Model)
-            {
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Партия: @participant.Party
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title"> @participant.FirstName @participant.LastName</h5>
-                    </div>
+                <div class="card-body">
+                    <h5 class="card-title"> @participant.FirstName @participant.LastName</h5>
                 </div>
-            }
+            </div>
         }
-
     }
-
 }
 else
 {
-    if (User.IsInRole(Roles.Admin))
-    {
-        <div class="card">
-            <div class="card-header">
-                No participant created yet
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">
-                    Use the button below to create new participant
-                </h5>
-                <a class="btn btn-primary" style="width:auto"
-           asp-controller="Admin" asp-action="AddNewParticipant">
-                    Add new Participant
-                </a>
-            </div>
+    <div class="card">
+        <div class="card-header">
+            No Participants Yet
         </div>
-    }
-    else
-    {
-        <div class="card">
-            <div class="card-header">
-                No Participants Yet
-            </div>
-        </div>
-    }
-
+    </div>
 }

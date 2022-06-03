@@ -29,6 +29,16 @@ namespace VotingApp.Business.Services
             return result.Entity;
         }
 
+        public async Task<Party> AddParty(RegisterNewParty newParty)
+        {
+            var result = await _dbContext.AddAsync(new Party()
+            {
+                Name = UppercaseFirst(newParty.Name),
+            });
+            await _dbContext.SaveChangesAsync();
+            return result.Entity;
+        }
+
         public async Task DeleteParticipant(int id)
         {
             var participantToRemove = await _dbContext.Participants
