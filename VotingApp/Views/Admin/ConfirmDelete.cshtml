@@ -1,0 +1,15 @@
+﻿@using VotingApp.Business.Models
+@model ViewParticipantInParty
+@{
+    ViewBag.Title = "Confirm Delete";
+}
+
+<h1>Delete Confirmation</h1>
+
+<div class="alert alert-danger">
+    <h5>Изтриване на - @Model.FirstName @Model.LastName от партия - @Model.Party</h5>
+    <form method="post" asp-action="DeleteParticipant" asp-controller="Admin" asp-route-id="@Model.Id">
+        <button type="submit" class="btn btn-danger">Yes</button>
+        <a asp-page="/User/ListParticipants" class="btn btn-primary">No</a>
+    </form>
+</div>
