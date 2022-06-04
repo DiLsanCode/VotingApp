@@ -41,7 +41,7 @@
                 </div>
                 <div class="card-footer">
                     <a class="btn btn-warning" style="width:auto"
-           asp-controller="Admin" asp-action="EditParticipant">
+           asp-controller="Admin" asp-action="EditParticipant" asp-route-id="@participant.Id">
                         Редактирай
                     </a>
                     <a class="btn btn-danger" style="width:auto"
@@ -54,20 +54,42 @@
     }
     else if (User.IsInRole(Roles.User))
     {
-        foreach (var participant in Model)
+        User user = await UserManager.GetUserAsync(User);
+        if (user.HasVoted)
         {
-            <div class="card mb-3">
-                <div class="card-header">
-                    Партия: @participant.Party
+            foreach (var participant in Model)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Партия: @participant.Party
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
+                        <a class="btn btn-primary float-end disabled"
+           asp-controller="User" asp-action="ConfirmVote" asp-route-id="@participant.Id" >
+                            Гласувай
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
-                    <a class="btn btn-primary float-end"
+            }
+        }
+        else
+        {
+            foreach (var participant in Model)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Партия: @participant.Party
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title float-start"> @participant.FirstName @participant.LastName</h5>
+                        <a class="btn btn-primary float-end"
            asp-controller="User" asp-action="ConfirmVote" asp-route-id="@participant.Id">
-                        Vote
-                    </a>
+                            Гласувай
+                        </a>
+                    </div>
                 </div>
-            </div>
+            }
         }
     }
     else

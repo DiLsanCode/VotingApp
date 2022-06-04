@@ -7,30 +7,35 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <h2>Create a new participant.</h2>
+            <h2>Edit participant.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-floating">
-                <input asp-for="FirstName" class="form-control" autocomplete="off" aria-required="true" value="@Model.FirstName"/>
+                <input asp-for="FirstName" class="form-control" autocomplete="off" aria-required="true" value="@Model.FirstName" />
                 <label asp-for="FirstName"></label>
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-floating">
-                <input asp-for="MiddleName" class="form-control" autocomplete="off" aria-required="true" value="@Model.MiddleName"/>
+                <input asp-for="MiddleName" class="form-control" autocomplete="off" aria-required="true" value="@Model.MiddleName" />
                 <label asp-for="MiddleName"></label>
                 <span asp-validation-for="MiddleName" class="text-danger"></span>
             </div>
             <div class="form-floating">
-                <input asp-for="LastName" class="form-control" autocomplete="off" aria-required="true" value="@Model.LastName"/>
+                <input asp-for="LastName" class="form-control" autocomplete="off" aria-required="true" value="@Model.LastName" />
                 <label asp-for="LastName"></label>
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
             <div class="form-floating">
-                <input asp-for="PartyId" class="form-control" autocomplete="off" aria-required="true" value="@Model.PartyId"/>
+                <select class="form-control" asp-for="PartyId" asp-items="@(new SelectList(ViewBag.ListOfParties,"Id","Name"))">
+                    <option selected="selected">
+                        @Model.PartyId
+                    </option>
+                </select>
                 <label asp-for="PartyId"></label>
                 <span asp-validation-for="PartyId" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Edit</button>
+            <a class="w-100 btn btn-outline-dark" asp-area="" asp-controller="User" asp-action="ListOfAllParticipants">Отказ</a>
         </form>
     </div>
 </div>
