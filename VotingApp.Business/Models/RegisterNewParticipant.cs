@@ -1,9 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace VotingApp.Business.Models
 {
     public class RegisterNewParticipant
     {
+        [HiddenInput(DisplayValue = false)]
+        public int Id { get; set; }
+
         [Required]
         public string FirstName { get; set; }
 

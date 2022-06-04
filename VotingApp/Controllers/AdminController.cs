@@ -19,25 +19,45 @@ namespace VotingApp.Controllers
             _adminService = adminService;
         }
 
+        //Show Page
         [HttpGet]
-        public IActionResult AddNewParticipant() { return View(); }
+        public async Task<IActionResult> AddNewParticipant() 
+        {
+            var pl = await _adminService.GetListOfParties();
+            ViewBag.ListOfParties = pl;
+            return View(); 
+        }
 
         [HttpGet]
         public IActionResult AddNewParty() { return View(); }
 
         [HttpGet]
-        public IActionResult ConfirmDelete() { return View(); }
+        public async Task<IActionResult> EditParticipant(int id) 
+        {
+            var pl = await _adminService.GetListOfParties();
+            ViewBag.ListOfParties = pl;
+            var participant = await _adminService.GetParticipantForEdit(id);
+            return View(participant);
+        }
 
-        /*[HttpGet]
-        public IActionResult EditParticipant() { return View(); }*/
+        [HttpGet]
+        public async Task<IActionResult> ConfirmDelete(int id)
+        {
+            var participant = await _adminService.GetParticipant(id);
+            return View(participant);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> AddNewParticipant(RegisterNewParticipant newParticipant)
         {
+            var pl = await _adminService.GetListOfParties();
+            ViewBag.ListOfParties = pl;
+
             if (ModelState.IsValid)
             {
                 await _adminService.AddParticipant(newParticipant);
-                return RedirectToAction("ListParticipants","User");
+                return RedirectToAction("ListOfAllParticipants", "User");
             }
             return View();
         }
@@ -48,25 +68,33 @@ namespace VotingApp.Controllers
             if (ModelState.IsValid)
             {
                 await _adminService.AddParty(newParty);
-                return RedirectToAction("ListParticipants", "User");
+                return RedirectToAction("ListOfAllParticipants", "User");
             }
             return View();
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> DeleteParticipant(int id)
         {
             if (ModelState.IsValid)
             {
                 await _adminService.DeleteParticipant(id);
-                return RedirectToAction("ListParticipants", "User");
+                return RedirectToAction("ListOfAllParticipants", "User");
             }
             return View();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> EditParticipant()
+        [HttpPost]
+        public async Task<IActionResult> EditParticipant(int id, RegisterNewParticipant participant)
         {
+            var pl = await _adminService.GetListOfParties();
+            ViewBag.ListOfParties = pl;
+
+            if (ModelState.IsValid)
+            {
+                await _adminService.EditParticipant(id, participant);
+                return RedirectToAction("ListOfAllParticipants", "User");
+            }
             return View();
         }
     }

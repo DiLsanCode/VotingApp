@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using VotingApp.Data.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
 
 namespace VotingApp.Areas.Identity.Pages.Account
 {
@@ -22,11 +24,15 @@ namespace VotingApp.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IConfiguration _config;
 
-        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<User> signInManager, 
+                            ILogger<LoginModel> logger, 
+                            IConfiguration config)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _config = config;
         }
 
         [BindProperty]
@@ -40,7 +46,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [StringLength(10, ErrorMessage = "The {0} must be {1} characters long.", MinimumLength = 10)]
+            [StringLength(10, ErrorMessage = "{0} трябва да бъде с дължина {1} цифри.", MinimumLength = 10)]
             [DataType(DataType.Password)]
             [Display(Name = "ЕГН")]
             public string EGN { get; set; }
@@ -74,11 +80,13 @@ namespace VotingApp.Areas.Identity.Pages.Account
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
+            var egn = CustomHashing(Input.EGN);
+
             if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.EGN, Input.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(egn, Input.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -95,13 +103,28 @@ namespace VotingApp.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Грешка при влизане.");
                     return Page();
                 }
             }
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private string CustomHashing(string str)
+        {
+            var key = _config.GetValue<string>("SecurityKey:Key");
+            byte[] salt = Encoding.ASCII.GetBytes(key);
+
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: str,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 1,
+                numBytesRequested: 64));
+
+            return hashed;
         }
     }
 }

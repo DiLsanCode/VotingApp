@@ -27,6 +27,7 @@ builder.Services.AddIdentity<User, Role>()
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<AppInitializer>();
 builder.Services.AddTransient<IAdminService, AdminService>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -71,7 +72,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=User}/{action=ListOfAllParticipants}/{id?}");
 app.MapRazorPages();
 
 app.Run();

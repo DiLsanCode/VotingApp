@@ -29,3 +29,7 @@ body {
 #finalVoteBtn {
     margin: 10px;
 }
+
+.form-floating {
+    margin-bottom: 5px;
+}

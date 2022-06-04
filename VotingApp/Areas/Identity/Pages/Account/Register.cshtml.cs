@@ -12,6 +12,9 @@ using VotingApp.Data.Data;
 using VotingApp.Data.Models;
 using VotingApp.Business.Validation;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
 
 namespace VotingApp.Areas.Identity.Pages.Account
 {
@@ -22,19 +25,22 @@ namespace VotingApp.Areas.Identity.Pages.Account
         private readonly IUserStore<User> _userStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _config;
 
         public RegisterModel(
             UserManager<User> userManager,
             IUserStore<User> userStore,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IConfiguration config)
         {
             _userManager = userManager;
             _userStore = userStore;
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
+            _config = config;
         }
 
         [BindProperty]
@@ -57,16 +63,16 @@ namespace VotingApp.Areas.Identity.Pages.Account
             public string LastName { get; set; }
 
             [Required]
-            [StringLength(10, ErrorMessage = "The {0} must be {1} characters long.", MinimumLength = 10)]
+            [StringLength(10, ErrorMessage = "{0} трябва да бъде с дължина {1} цифри.", MinimumLength = 10)]
             [DataType(DataType.Password)]
             [Display(Name = "ЕГН")]
             [RegularExpression("^[0-9]*$", ErrorMessage = "ЕГН-то трябва да се състои само от цифри!")]
             public string EGN { get; set; }
 
             [Required]
-            [StringLength(13, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 10)]
+            [StringLength(9, ErrorMessage = "{0} трябва да е {1}.", MinimumLength = 9)]
             [Display(Name = "Телефонен номер")]
-            [RegularExpression("^[0-9+]*$", ErrorMessage = "Телефонният номер трябва да се състои само от цифри и започващ с 0 или +!")]
+            [RegularExpression("^[0-9]*$", ErrorMessage = "Телефонният номер трябва да се състои само от цифри!")]
             public string PhoneNumber { get; set; }
 
         }
@@ -121,8 +127,8 @@ namespace VotingApp.Areas.Identity.Pages.Account
                     FirstName = UppercaseFirst(Input.FirstName),
                     MiddleName = UppercaseFirst(Input.MiddleName),
                     LastName = UppercaseFirst(Input.LastName),
-                    PhoneNumber = Input.PhoneNumber,
-                    UserName = Input.EGN
+                    PhoneNumber = "+359" + Input.PhoneNumber,
+                    UserName = CustomHashing(Input.EGN),
                 };
 
                 return newUser;
@@ -161,24 +167,20 @@ namespace VotingApp.Areas.Identity.Pages.Account
                 .Select(s => s[rnd.Next(s.Length)]).ToArray());
         }
 
-        /*private string CustomHashing(string str)
+        private string CustomHashing(string str)
         {
-            // generate a 128-bit salt using a cryptographically strong random sequence of nonzero values
-            byte[] salt = new byte[128 / 8];
-            *//*using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                rngCsp.GetNonZeroBytes(salt);
-            }*//*
+            var key = _config.GetValue<string>("SecurityKey:Key");
+            byte[] salt = Encoding.ASCII.GetBytes(key);
 
-            // derive a 256-bit subkey (use HMACSHA256 with 1,000 iterations)
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: str,
                 salt: salt,
                 prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 1000,
-                numBytesRequested: 256 / 8));
+                iterationCount: 1,
+                numBytesRequested: 64));
 
             return hashed;
-        }*/
+        }
+
     }
 }

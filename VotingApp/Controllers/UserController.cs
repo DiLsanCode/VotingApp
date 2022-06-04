@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VotingApp.Business.Constants;
+using VotingApp.Business.Interfaces;
 using VotingApp.Business.Models;
 using VotingApp.Data.Data;
 using VotingApp.Data.Models;
@@ -12,59 +13,35 @@ namespace VotingApp.Controllers
     [Authorize(Roles = Roles.User)]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserService _userSerive;
 
-        public UserController(ApplicationDbContext dbContext)
+        public UserController(IUserService userSerive)
         {
-            _context = dbContext;
+            _userSerive = userSerive;
         }
 
-        
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ListParticipants()
+        public async Task<IActionResult> ListOfAllParticipants()
         {
-            var participants = await _context.Participants
-                .Include(x => x.Party)
-                .Select(x => new ViewParticipantInParty
-                {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    Party = x.Party.Name
-                })
-                .ToListAsync();
+            var participants = await _userSerive.GetAllListOfParticipant();
             return View(participants);
         }
 
         [HttpGet]
         public async Task<IActionResult> ConfirmVote(int id)
         {
-            var participant = await _context.Participants
-                .Select(x => new ViewParticipantInParty
-                {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    Party = x.Party.Name
-                })
-                .FirstOrDefaultAsync(x => x.Id == id);
-
+            var participant = await _userSerive.GetParticipantById(id);
             return View(participant);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Vote(int id)
+        [HttpPost]
+        public async Task<IActionResult> Vote(int id, int userId)
         {
-            var participant = await _context.Participants
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if(participant != null)
+            if (ModelState.IsValid)
             {
-                participant.VoteCount++;
-                var updatedOrder = _context.Participants.Update(participant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("ListParticipants", "User");
+                await _userSerive.Vote(id, userId);
+                return RedirectToAction("ListOfAllParticipants", "User");
             }
             return View();
         }

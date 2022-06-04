@@ -1,8 +1,15 @@
-﻿@using VotingApp.Business.Models
+﻿@using Microsoft.AspNetCore.Identity
+@using VotingApp.Business.Constants
+@using VotingApp.Business.Models
+@using VotingApp.Data.Models
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @model ViewParticipantInParty
 @{
     ViewBag.Title = "Confirm Vote";
+    User user = await UserManager.GetUserAsync(User);
 }
+
 <div class="text-center">
     <h4>Вие гласувахте за:</h4>
     <h2 class="text-primary">@Model.FirstName @Model.LastName</h2>
@@ -14,8 +21,14 @@
             Потвърждавам, че това е моят краен вот!
         </label>
     </div>
-    <button class="btn btn-primary" id="finalVoteBtn" type="button" disabled
+
+    <form method="post" asp-action="Vote" asp-controller="User" asp-route-id="@Model.Id" asp-route-userId="@user.Id">
+        <button type="submit" class="btn btn-outline-primary" id="finalVoteBtn" disabled>Гласувай</button>
+        <a class="btn btn-outline-dark" asp-area="" asp-controller="User" asp-action="ListOfAllParticipants">Отказ</a>
+    </form>
+
+    @*<button class="btn btn-primary" id="finalVoteBtn" type="button" disabled
             onclick="location.href='@Url.Action("Vote", "User", new { id = @Model.Id })'">
         Гласувай
-    </button>
+    </button>*@
 </div>

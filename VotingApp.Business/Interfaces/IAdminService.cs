@@ -14,6 +14,9 @@ namespace VotingApp.Business.Interfaces
         Task<Participant> AddParticipant(RegisterNewParticipant newParticipant);
         Task<Party> AddParty(RegisterNewParty newParty);
         Task DeleteParticipant(int id);
-        Task<IActionResult> EditParticipant();
+        Task EditParticipant(int id, RegisterNewParticipant participant);
+        Task<ViewParticipantInParty> GetParticipant(int id);
+        Task<RegisterNewParticipant> GetParticipantForEdit(int id);
+        Task<IEnumerable<ViewParty>> GetListOfParties();
     }
 }
