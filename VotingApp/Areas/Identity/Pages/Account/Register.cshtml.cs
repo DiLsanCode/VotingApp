@@ -10,11 +10,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using VotingApp.Business.Constants;
 using VotingApp.Data.Data;
 using VotingApp.Data.Models;
-using VotingApp.Business.Validation;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Text;
+using VotingApp.Business.Interfaces;
 
 namespace VotingApp.Areas.Identity.Pages.Account
 {
@@ -22,25 +19,31 @@ namespace VotingApp.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly ILogger<RegisterModel> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
+        private readonly IHashingService _hashing;
+        private readonly ISMSService _sms;
+        private readonly IAuthenticationCodeService _code;
+        private readonly INamingService _naming;
 
         public RegisterModel(
             UserManager<User> userManager,
-            IUserStore<User> userStore,
             SignInManager<User> signInManager,
-            ILogger<RegisterModel> logger,
             ApplicationDbContext context,
-            IConfiguration config)
+            IConfiguration config,
+            IHashingService hashing,
+            ISMSService sms,
+            IAuthenticationCodeService code,
+            INamingService naming)
         {
             _userManager = userManager;
-            _userStore = userStore;
             _signInManager = signInManager;
-            _logger = logger;
             _context = context;
             _config = config;
+            _hashing = hashing;
+            _sms = sms;
+            _code = code;
+            _naming = naming;
         }
 
         [BindProperty]
@@ -90,7 +93,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-                var _password = CreateAuthenticationCode();
+                var _password = _code.CreateAuthenticationCode();
 
                 if (await IsPhoneNumberUsed(user.PhoneNumber))
                 {
@@ -100,6 +103,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
                 {
                     var result = await _userManager.CreateAsync(user, _password);
                     await _userManager.AddToRoleAsync(user, Roles.User);
+                    _sms.SendMessage(_password, Input.PhoneNumber);
 
                     if (result.Succeeded)
                     {
@@ -111,7 +115,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
-                
+
             }
 
             // If we got this far, something failed, redisplay form
@@ -124,11 +128,11 @@ namespace VotingApp.Areas.Identity.Pages.Account
             {
                 var newUser = new User()
                 {
-                    FirstName = UppercaseFirst(Input.FirstName),
-                    MiddleName = UppercaseFirst(Input.MiddleName),
-                    LastName = UppercaseFirst(Input.LastName),
-                    PhoneNumber = "+359" + Input.PhoneNumber,
-                    UserName = CustomHashing(Input.EGN),
+                    FirstName = _naming.UppercaseFirst(Input.FirstName),
+                    MiddleName = _naming.UppercaseFirst(Input.MiddleName),
+                    LastName = _naming.UppercaseFirst(Input.LastName),
+                    PhoneNumber = "359" + Input.PhoneNumber,
+                    UserName = _hashing.CustomHashing(Input.EGN),
                 };
 
                 return newUser;
@@ -151,36 +155,5 @@ namespace VotingApp.Areas.Identity.Pages.Account
             return true;
 
         }
-
-        private string UppercaseFirst(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-                return string.Empty;
-            return char.ToUpper(str[0]) + str.Substring(1).ToLower();
-        }
-
-        private string CreateAuthenticationCode()
-        {
-            Random rnd = new Random();
-            const string chars = "AaBbCcDdEeFfGgHhIiJjKkkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
-            return new string(Enumerable.Repeat(chars, 8)
-                .Select(s => s[rnd.Next(s.Length)]).ToArray());
-        }
-
-        private string CustomHashing(string str)
-        {
-            var key = _config.GetValue<string>("SecurityKey:Key");
-            byte[] salt = Encoding.ASCII.GetBytes(key);
-
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: str,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 1,
-                numBytesRequested: 64));
-
-            return hashed;
-        }
-
     }
 }

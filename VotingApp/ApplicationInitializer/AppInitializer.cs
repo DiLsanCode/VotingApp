@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using VotingApp.Business.Constants;
+using VotingApp.Business.Interfaces;
 using VotingApp.Data.Data;
 using VotingApp.Data.Models;
 
@@ -14,13 +15,19 @@ namespace VotingApp.ApplicationInitializer
         private UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly IConfiguration _config;
+        private readonly IHashingService _hashing;
 
-        public AppInitializer(ApplicationDbContext dbContext, UserManager<User> userManager, RoleManager<Role> roleManager, IConfiguration config)
+        public AppInitializer(ApplicationDbContext dbContext, 
+                                UserManager<User> userManager, 
+                                RoleManager<Role> roleManager, 
+                                IConfiguration config,
+                                IHashingService hashing)
         {
             _dbContext = dbContext;
             _roleManager = roleManager;
             _userManager = userManager;
             _config = config;
+            _hashing = hashing;
         }
 
         public async Task InitializeAsync()
@@ -29,6 +36,7 @@ namespace VotingApp.ApplicationInitializer
             await SeedRolesAsync();
             await SeedUsersAsync();
             await SeedPartiesAsync();
+            await SeedParticipantsAsync();
         }
 
         private async Task ApplyMigrationsAsync()
@@ -54,16 +62,36 @@ namespace VotingApp.ApplicationInitializer
 
         private async Task SeedPartiesAsync()
         {
-            if (await _dbContext.Users.AnyAsync())
+            if (await _dbContext.Parties.AnyAsync())
             {
                 return;
             }
 
             for(int i = 1; i < 7; i++)
             {
-                await _dbContext.AddAsync(new Party()
+                await _dbContext.Parties.AddAsync(new Party()
                 {
                     Name = $"Party {i}",
+                });
+            }
+            await _dbContext.SaveChangesAsync();
+        }
+
+        private async Task SeedParticipantsAsync()
+        {
+            if (await _dbContext.Participants.AnyAsync())
+            {
+                return;
+            }
+
+            for (int i = 1; i < 7; i++)
+            {
+                await _dbContext.Participants.AddAsync(new Participant()
+                {
+                    FirstName = $"Participant {i}",
+                    MIddleName = $"MiddleName {i}",
+                    LastName = $"LastName {i}",
+                    PartyId = i,
                 });
             }
             await _dbContext.SaveChangesAsync();
@@ -78,7 +106,7 @@ namespace VotingApp.ApplicationInitializer
 
             var adminUser = new User
             {
-                UserName = CustomHashing("Admin12345"),
+                UserName = _hashing.CustomHashing("Admin12345"),
                 FirstName = "Admin",
                 MiddleName = "Admin",
                 LastName = "Admin",
@@ -87,21 +115,6 @@ namespace VotingApp.ApplicationInitializer
             await _userManager.CreateAsync(adminUser, "Admin123");
             await _userManager.AddToRoleAsync(adminUser, Roles.Admin);
 
-        }
-
-        private string CustomHashing(string str)
-        {
-            var key = _config.GetValue<string>("SecurityKey:Key");
-            byte[] salt = Encoding.ASCII.GetBytes(key);
-
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: str,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 1,
-                numBytesRequested: 64));
-
-            return hashed;
         }
     }
 }

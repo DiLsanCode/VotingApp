@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Mail;
 using VotingApp.ApplicationInitializer;
 using VotingApp.Business.Interfaces;
 using VotingApp.Business.Services;
@@ -28,6 +30,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<AppInitializer>();
 builder.Services.AddTransient<IAdminService, AdminService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IAuthenticationCodeService, AuthenticationCodeService>();
+builder.Services.AddTransient<IHashingService, HashingService>();
+builder.Services.AddTransient<ISMSService, SMSService>();
+builder.Services.AddTransient<INamingService, NamingService>();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>

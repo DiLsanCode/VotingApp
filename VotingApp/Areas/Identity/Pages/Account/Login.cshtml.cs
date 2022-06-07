@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using VotingApp.Data.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
+using VotingApp.Business.Interfaces;
 
 namespace VotingApp.Areas.Identity.Pages.Account
 {
@@ -25,14 +26,17 @@ namespace VotingApp.Areas.Identity.Pages.Account
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IConfiguration _config;
+        private readonly IHashingService _hashing;
 
         public LoginModel(SignInManager<User> signInManager, 
                             ILogger<LoginModel> logger, 
-                            IConfiguration config)
+                            IConfiguration config,
+                            IHashingService hashing)
         {
             _signInManager = signInManager;
             _logger = logger;
             _config = config;
+            _hashing = hashing;
         }
 
         [BindProperty]
@@ -80,7 +84,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            var egn = CustomHashing(Input.EGN);
+            var egn = _hashing.CustomHashing(Input.EGN);
 
             if (ModelState.IsValid)
             {
@@ -110,21 +114,6 @@ namespace VotingApp.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
-        }
-
-        private string CustomHashing(string str)
-        {
-            var key = _config.GetValue<string>("SecurityKey:Key");
-            byte[] salt = Encoding.ASCII.GetBytes(key);
-
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: str,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 1,
-                numBytesRequested: 64));
-
-            return hashed;
         }
     }
 }
