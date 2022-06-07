@@ -11,19 +11,22 @@ namespace VotingApp.Business.Services
     public class AdminService : IAdminService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly INamingService _naming;
 
-        public AdminService(ApplicationDbContext dbContext)
+        public AdminService(ApplicationDbContext dbContext, 
+                            INamingService naming)
         {
             _dbContext = dbContext;
+            _naming = naming;
         }
 
         public async Task<Participant> AddParticipant(RegisterNewParticipant newParticipant)
         {
             var result = await _dbContext.AddAsync(new Participant()
             {
-                FirstName = UppercaseFirst(newParticipant.FirstName),
-                MIddleName = UppercaseFirst(newParticipant.MiddleName),
-                LastName = UppercaseFirst(newParticipant.LastName),
+                FirstName = _naming.UppercaseFirst(newParticipant.FirstName),
+                MIddleName = _naming.UppercaseFirst(newParticipant.MiddleName),
+                LastName = _naming.UppercaseFirst(newParticipant.LastName),
                 PartyId = newParticipant.PartyId,
             });
             await _dbContext.SaveChangesAsync();
@@ -34,7 +37,7 @@ namespace VotingApp.Business.Services
         {
             var result = await _dbContext.AddAsync(new Party()
             {
-                Name = UppercaseFirst(newParty.Name),
+                Name = _naming.UppercaseFirst(newParty.Name),
             });
             await _dbContext.SaveChangesAsync();
             return result.Entity;
@@ -125,17 +128,6 @@ namespace VotingApp.Business.Services
                 .ToListAsync();
 
             return parties;
-        }
-
-        private string UppercaseFirst(string str)
-        {
-            TextInfo textInfo = new CultureInfo("bg-BG", false).TextInfo;
-
-            if (string.IsNullOrEmpty(str))
-                return string.Empty;
-
-            return textInfo.ToTitleCase(str);
-            //return char.ToUpper(str[0]) + str.Substring(1).ToLower();
         }
     }
 }
