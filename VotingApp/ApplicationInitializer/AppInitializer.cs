@@ -71,7 +71,7 @@ namespace VotingApp.ApplicationInitializer
             {
                 await _dbContext.Parties.AddAsync(new Party()
                 {
-                    Name = $"Party {i}",
+                    Name = $"Партия {i}",
                 });
             }
             await _dbContext.SaveChangesAsync();
@@ -79,19 +79,23 @@ namespace VotingApp.ApplicationInitializer
 
         private async Task SeedParticipantsAsync()
         {
+            string[] firstName = { "Антон", "Алекса", "Звездиян", "Добринка", "Спартак", "Николет" };
+            string[] middleName = { "Николов", "Георгиева", "Божинов", "Каменова", "Андреев", "Попова" };
+            string[] lastName = { "Котев", "Арнаудова", "Събев", "Михайлова", "Пешев", "Иванова" };
+
             if (await _dbContext.Participants.AnyAsync())
             {
                 return;
             }
 
-            for (int i = 1; i < 7; i++)
+            for (int i = 0; i < 6; i++)
             {
                 await _dbContext.Participants.AddAsync(new Participant()
                 {
-                    FirstName = $"Participant {i}",
-                    MIddleName = $"MiddleName {i}",
-                    LastName = $"LastName {i}",
-                    PartyId = i,
+                    FirstName = $"{firstName[i]}",
+                    MIddleName = $"{middleName[i]}",
+                    LastName = $"{lastName[i]}",
+                    PartyId = i+1,
                 });
             }
             await _dbContext.SaveChangesAsync();
