@@ -53,15 +53,15 @@ namespace VotingApp.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "{0} е задължително.")]
             [Display(Name = "Име")]
             public string FirstName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "{0} е задължително.")]
             [Display(Name = "Презиме")]
             public string MiddleName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "{0} е задължителна.")]
             [Display(Name = "Фамилия")]
             public string LastName { get; set; }
 
@@ -73,7 +73,7 @@ namespace VotingApp.Areas.Identity.Pages.Account
             public string EGN { get; set; }
 
             [Required]
-            [StringLength(9, ErrorMessage = "{0} трябва да е {1}.", MinimumLength = 9)]
+            [StringLength(9, ErrorMessage = "{0} трябва да е {1} цифри.", MinimumLength = 9)]
             [Display(Name = "Телефонен номер")]
             [RegularExpression("^[0-9]*$", ErrorMessage = "Телефонният номер трябва да се състои само от цифри!")]
             public string PhoneNumber { get; set; }
