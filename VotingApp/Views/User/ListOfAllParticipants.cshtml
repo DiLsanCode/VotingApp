@@ -10,6 +10,16 @@
 }
 <h1>Кандидати</h1>
 
+@{
+    List<ViewParticipantInParty> listOfParticipants = new List<ViewParticipantInParty>();
+        foreach (var participant in Model)
+        {
+            listOfParticipants.Add(participant);
+        }
+
+        var sortedList = listOfParticipants.OrderBy(x => x.Party).ToList();
+}
+
 @if (User.IsInRole(Roles.Admin))
 {
     <div class="card">
@@ -30,7 +40,7 @@
 {
     if (User.IsInRole(Roles.Admin))
     {
-        foreach (var participant in Model)
+        foreach (var participant in sortedList)
         {
             <div class="card mb-3">
                 <div class="card-header">
@@ -57,7 +67,7 @@
         User user = await UserManager.GetUserAsync(User);
         if (user.HasVoted)
         {
-            foreach (var participant in Model)
+            foreach (var participant in sortedList)
             {
                 <div class="card mb-3">
                     <div class="card-header">
@@ -75,7 +85,7 @@
         }
         else
         {
-            foreach (var participant in Model)
+            foreach (var participant in sortedList)
             {
                 <div class="card mb-3">
                     <div class="card-header">
@@ -94,7 +104,7 @@
     }
     else
     {
-        foreach (var participant in Model)
+        foreach (var participant in sortedList)
         {
             <div class="card mb-3">
                 <div class="card-header">
